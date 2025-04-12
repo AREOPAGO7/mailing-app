@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('contact_campaigns', function (Blueprint $table) {
             $table->id();
             $table->foreignId('contact_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // Add user_id
             $table->foreignId('campaign_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });

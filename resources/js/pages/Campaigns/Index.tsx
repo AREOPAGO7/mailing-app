@@ -80,7 +80,8 @@ export default function CampaignIndex({ campaigns, templates, lists }: Props) {
       days_active: formData.days_active,
     }, {
       onSuccess: () => {
-        setIsCreateOpen(false);
+        alert('Campaign created successfully!'); // Show success alert
+        setIsCreateOpen(false); // Close the dialog
         setFormData({
           name: '',
           template_id: null,

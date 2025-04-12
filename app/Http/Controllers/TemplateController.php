@@ -12,7 +12,9 @@ class TemplateController extends Controller
 {
     public function index(): Response
     {
-        $templates = Template::all();
+        // Fetch templates for the logged-in user
+        $templates = Template::where('user_id', auth()->id())->get();
+
         return Inertia::render('Templates/Index', [
             'templates' => $templates,
         ]);
@@ -28,7 +30,8 @@ class TemplateController extends Controller
 
         $data['content'] = Purifier::clean($data['content']); // Sanitize HTML
 
-        Template::create($data);
+        // Associate the template with the logged-in user
+        Template::create(array_merge($data, ['user_id' => auth()->id()]));
 
         return redirect()->back()->with('success', 'Template created successfully!');
     }

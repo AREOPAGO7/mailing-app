@@ -13,9 +13,15 @@ class CampaignController extends Controller
 {
     public function index(): Response
     {
-        $campaigns = Campaign::with(['template', 'contactList'])->get();
-        $templates = Template::all();
-        $lists = ContactList::all();
+        // Fetch campaigns for the logged-in user
+        $campaigns = Campaign::with(['template', 'contactList'])
+            ->where('user_id', auth()->id())
+            ->get();
+
+        // Fetch templates and lists for the logged-in user
+        $templates = Template::where('user_id', auth()->id())->get();
+        $lists = ContactList::where('user_id', auth()->id())->get();
+
         return Inertia::render('Campaigns/Index', [
             'campaigns' => $campaigns,
             'templates' => $templates,
@@ -38,7 +44,8 @@ class CampaignController extends Controller
             'time_end' => 'required|date_format:H:i',
         ]);
 
-        $campaign = Campaign::create($data);
+        // Associate the campaign with the logged-in user
+        Campaign::create(array_merge($data, ['user_id' => auth()->id()]));
 
         return redirect()->back()->with('success', 'Campaign created successfully!');
     }

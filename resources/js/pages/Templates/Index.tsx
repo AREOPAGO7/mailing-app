@@ -29,21 +29,23 @@ export default function TemplateIndex({ templates }: Props) {
 
   const handleSaveTemplate = () => {
     emailEditorRef.current.editor.exportHtml((data) => {
-        const { design, html } = data;
+      const { design, html } = data;
 
-        router.post('/templates', {
-            name: templateName,
-            content: html,
-            design: JSON.stringify(design), // Save design as JSON
-        }, {
-            onSuccess: () => {
-                console.log('Template created successfully!');
-                router.reload(); // Refresh the page to see changes
-            },
-            onError: (errors) => {
-                console.error('Failed to create template:', errors);
-            },
-        });
+      router.post('/templates', {
+        name: templateName,
+        content: html,
+        design: JSON.stringify(design), // Save design as JSON
+      }, {
+        onSuccess: () => {
+          alert('Template created successfully!'); // Show success alert
+          setIsCreateOpen(false); // Close the dialog
+          setTemplateName(''); // Reset the template name
+          router.reload(); // Refresh the page to see changes
+        },
+        onError: (errors) => {
+          console.error('Failed to create template:', errors);
+        },
+      });
     });
   };
 

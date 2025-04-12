@@ -1,26 +1,20 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Template extends Model
+class SmtpConfig extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'name',
-        'content',
-        'design',
-        'user_id'
+        'user_id',
+        'mail_username',
+        'mail_password',
+        'mail_from_address',
     ];
-
-    protected $appends = ['preview'];
-
-    public function getPreviewAttribute()
-    {
-        return substr(strip_tags($this->content), 0, 100) . '...';
-    }
     public function user()
     {
         return $this->belongsTo(User::class);

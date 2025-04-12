@@ -61,7 +61,10 @@ export default function Index({ list, contacts }: Props) {
       router.delete(`/contacts/${id}`, {
         onSuccess: () => {
           alert('Contact supprimé avec succès');
-        }
+        },
+        onError: () => {
+          alert('Failed to delete contact.');
+        },
       });
     }
   };

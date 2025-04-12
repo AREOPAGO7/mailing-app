@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('email');
             $table->string('phone');
             $table->foreignId('list_id')->constrained('contact_lists')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // Add user_id
             $table->timestamps();
         });
     }

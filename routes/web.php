@@ -5,7 +5,7 @@ use Inertia\Inertia;
 use Laravel\WorkOS\Http\Middleware\ValidateSessionWithWorkOS;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\TemplateController;  // Add this line
-
+use App\Http\Controllers\SmtpConfigController;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -34,11 +34,14 @@ Route::middleware([
     // Add these template routes
     Route::get('/templates', [TemplateController::class, 'index'])->name('templates.index');
     Route::post('/templates', [TemplateController::class, 'store'])->name('templates.store');
-    Route::put('/templates/{template}', [TemplateController::class, 'update'])->name('templates.update');
-    
+    Route::put('/templates/{template}', [TemplateController::class, 'update'])->name('templates.update');    
     Route::delete('/templates/{template}', [TemplateController::class, 'destroy'])->name('templates.destroy');
     Route::resource('campaigns', CampaignController::class)->except(['show']);
+    Route::post('/smtp-config', [SmtpConfigController::class, 'store'])->name('smtp-config.store');
+    Route::get('/smtp-config', [SmtpConfigController::class, 'index'])->name('smtp-config.index');
 });
+
+
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

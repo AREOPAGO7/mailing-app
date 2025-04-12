@@ -12,25 +12,39 @@ class ContactController extends Controller
 {
     public function index(ContactList $list): Response
     {
+        // Ensure the contact list belongs to the logged-in user
+        if ($list->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $contacts = $list->contacts()->get();
+
         return Inertia::render('Contacts/Index', [
             'list' => $list,
-            'contacts' => $contacts
+            'contacts' => $contacts,
         ]);
     }
 
     public function store(Request $request, ContactList $list)
     {
+        // Ensure the contact list belongs to the logged-in user
+        if ($list->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
-            'phone' => 'required|string|max:255'
+            'phone' => 'required|string|max:255',
         ]);
 
-        $list->contacts()->create($request->all());
+        // Create the contact and associate it with the logged-in user
+        $list->contacts()->create(array_merge($request->all(), [
+            'user_id' => auth()->id(),
+        ]));
 
-        return redirect()->back();
+        return redirect()->back()->with('success', 'Contact created successfully!');
     }
 
     public function update(Request $request, Contact $contact)
@@ -49,6 +63,11 @@ class ContactController extends Controller
 
     public function destroy(Contact $contact)
     {
+        // Ensure the contact belongs to the logged-in user
+        if ($contact->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $contact->delete();
 
         return redirect()->back();

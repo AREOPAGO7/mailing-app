@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('templates', function (Blueprint $table) {
+        Schema::create('smtp_configs', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->text('content')->nullable();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // Add user_id
+            $table->string('mail_username');
+            $table->string('mail_password');
+            $table->string('mail_from_address');
             $table->timestamps();
         });
     }
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('templates');
+        Schema::dropIfExists('smtp_configs');
     }
 };

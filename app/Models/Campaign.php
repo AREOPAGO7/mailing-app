@@ -9,7 +9,7 @@ class Campaign extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'template_id', 'list_id', 'subject', 'body', 'start_date', 'days_active', 'time_start', 'time_end',
+        'name', 'template_id', 'list_id', 'user_id', 'subject', 'body', 'start_date', 'days_active', 'time_start', 'time_end',
     ];
 
     protected $casts = [
@@ -21,6 +21,7 @@ class Campaign extends Model
     {
         return $this->belongsTo(Template::class);
     }
+
     public function contactList()
     {
         return $this->belongsTo(ContactList::class, 'list_id');
@@ -29,5 +30,11 @@ class Campaign extends Model
     public function contacts()
     {
         return $this->belongsToMany(Contact::class, 'contact_campaigns', 'campaign_id', 'contact_id');
+    }
+
+    // Add the relationship to the User model
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

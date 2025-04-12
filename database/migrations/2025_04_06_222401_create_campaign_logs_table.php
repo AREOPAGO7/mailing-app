@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('campaign_logs', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // Add user_id
             $table->foreignId('campaign_id')->constrained()->onDelete('cascade');
             $table->integer('total_contacts')->default(0);
             $table->integer('successful_sends')->default(0);
@@ -22,7 +23,7 @@ return new class extends Migration
             $table->timestamp('completed_at')->nullable();
             $table->timestamps();
         });
-    }
+    } 
 
     /**
      * Reverse the migrations.

@@ -10,6 +10,7 @@ class CampaignLog extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'campaign_id',
         'total_contacts',
         'successful_sends',
@@ -28,5 +29,9 @@ class CampaignLog extends Model
     public function campaign()
     {
         return $this->belongsTo(Campaign::class);
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
