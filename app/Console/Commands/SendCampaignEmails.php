@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Carbon;
 use Resend\Laravel\Facades\Resend;
+use Illuminate\Support\Facades\Config;
+use App\Models\SmtpConfig;
 
 class SendCampaignEmails extends Command
 {
@@ -87,6 +89,28 @@ class SendCampaignEmails extends Command
         if (!$campaign->list_id) {
             $this->error("Campaign {$campaign->name} has no associated contact list");
             return;
+        }
+
+        // Fetch the user's SMTP configuration
+        $smtpConfig = SmtpConfig::where('user_id', $campaign->user_id)->first();
+
+        if ($smtpConfig) {
+            // Override mail configuration dynamically
+            Config::set('mail.mailers.smtp', [
+                'transport' => 'smtp',
+                'host' => $smtpConfig->mail_host ?? config('mail.mailers.smtp.host'),
+                'port' => $smtpConfig->mail_port ?? config('mail.mailers.smtp.port'),
+                'encryption' => $smtpConfig->mail_encryption ?? config('mail.mailers.smtp.encryption'),
+                'username' => $smtpConfig->mail_username,
+                'password' => $smtpConfig->mail_password,
+            ]);
+
+            Config::set('mail.from.address', $smtpConfig->mail_from_address);
+            Config::set('mail.from.name', $smtpConfig->mail_from_name ?? config('mail.from.name'));
+
+            $this->info("Using custom SMTP configuration for user ID: {$campaign->user_id}");
+        } else {
+            $this->info("No custom SMTP configuration found for user ID: {$campaign->user_id}. Using default .env configuration.");
         }
     
         // Create campaign log

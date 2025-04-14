@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Mail\UserMailManager;
 use App\Models\SmtpConfig;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
@@ -15,7 +16,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->extend('mail.manager', function ($manager, $app) {
+            return new UserMailManager($app);
+        });
     }
 
     /**
@@ -25,14 +28,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Schema::defaultStringLength(255);
 
-        if (Auth::check()) {
-            $smtpConfig = SmtpConfig::where('user_id', Auth::id())->first();
-
-            if ($smtpConfig) {
-                Config::set('mail.mailers.smtp.username', $smtpConfig->mail_username);
-                Config::set('mail.mailers.smtp.password', $smtpConfig->mail_password);
-                Config::set('mail.from.address', $smtpConfig->mail_from_address);
-            }
-        }
+        // Set the default mailer to use SMTP
+        Config::set('mail.default', 'smtp');
     }
 }
