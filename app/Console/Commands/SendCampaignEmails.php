@@ -46,6 +46,8 @@ class SendCampaignEmails extends Command
         $campaigns = Campaign::whereDate('start_date', '<=', $currentDate)
             ->whereJsonContains('days_active', $currentDay)
             ->get();
+            $this->info("\nFound {$campaigns->count()} campaigns matching date criteria");
+
 
         $this->info("\nFound {$campaigns->count()} campaigns matching date and day criteria");
 
@@ -80,30 +82,37 @@ class SendCampaignEmails extends Command
     private function sendCampaign(Campaign $campaign)
     {
         $this->info("\nProcessing campaign: {$campaign->name}");
-
+    
+        // Check if campaign has a contact list
+        if (!$campaign->list_id) {
+            $this->error("Campaign {$campaign->name} has no associated contact list");
+            return;
+        }
+    
         // Create campaign log
         $log = CampaignLog::create([
             'campaign_id' => $campaign->id,
+            'user_id' => $campaign->user_id,
             'started_at' => now(),
         ]);
-
-        $list = ContactList::find($campaign->list_id);
+    
+        // Load the contact list without the global scope
+        $list = ContactList::withoutGlobalScope('ownedByUser')
+            ->with('contacts')
+            ->find($campaign->list_id);
+        
         if (!$list) {
-            $this->error("List not found for campaign {$campaign->id}");
+            $this->error("List not found for campaign {$campaign->name} (ID: {$campaign->id})");
             $log->update([
                 'completed_at' => now(),
-                'errors' => ['List not found']
+                'errors' => ['Contact list not found or has been deleted']
             ]);
             return;
         }
-
+    
         $this->info("Found list: {$list->name}");
 
-        $contacts = $list->contacts()
-            ->whereDoesntHave('campaigns', function ($query) use ($campaign) {
-                $query->where('campaign_id', $campaign->id);
-            })
-            ->get();
+        $contacts = $list->contacts()->get();
 
         $this->info("Found {$contacts->count()} contacts to send to");
 
@@ -127,7 +136,6 @@ class SendCampaignEmails extends Command
                         ->html($templateContent); // Use the template content as the email body
                 });
 
-                $campaign->contacts()->attach($contact->id);
                 $log->increment('successful_sends');
                 $this->info("Successfully sent to {$contact->email}");
             } catch (\Exception $e) {

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('campaign_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // Add user_id
             $table->foreignId('campaign_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Add this line
             $table->integer('total_contacts')->default(0);
             $table->integer('successful_sends')->default(0);
             $table->integer('failed_sends')->default(0);

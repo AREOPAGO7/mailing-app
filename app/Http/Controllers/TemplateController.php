@@ -53,6 +53,10 @@ class TemplateController extends Controller
 
     public function destroy(Template $template)
     {
+        if ($template->user_id !== auth()->id()) {
+            return redirect()->back()->with('error', 'Unauthorized action.');
+        }
+
         $template->delete();
 
         return redirect()->back()->with('success', 'Template deleted successfully!');
