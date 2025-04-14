@@ -30,7 +30,7 @@ Route::middleware([
     Route::post('/lists/{list}/contacts', [\App\Http\Controllers\ContactController::class, 'store'])->name('contacts.store');
     Route::put('/contacts/{contact}', [\App\Http\Controllers\ContactController::class, 'update'])->name('contacts.update');
     Route::delete('/contacts/{contact}', [\App\Http\Controllers\ContactController::class, 'destroy'])->name('contacts.destroy');
-    Route::post('/lists/{list}/contacts/import', [\App\Http\Controllers\ContactController::class, 'import'])->name('contacts.import');
+   
     // Add these template routes
     Route::get('/templates', [TemplateController::class, 'index'])->name('templates.index');
     Route::post('/templates', [TemplateController::class, 'store'])->name('templates.store');

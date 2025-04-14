@@ -71,11 +71,16 @@ export default function Show({ list }: Props) {
         }
     };
 
-    const handleExport = () => {
-        const csv = Papa.unparse(list.contacts);
+    function handleExport() {
+        const fields = ['first_name', 'last_name', 'email', 'phone'];
+        const contacts = list.contacts.map((contact) => {
+            const { first_name, last_name, email, phone } = contact;
+            return { first_name, last_name, email, phone };
+        });
+        const csv = Papa.unparse(contacts);
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         saveAs(blob, `${list.name}-contacts.csv`);
-    };
+    }
 
     const handleImport = () => {
         const input = document.createElement('input');

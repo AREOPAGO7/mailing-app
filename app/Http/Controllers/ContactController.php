@@ -7,6 +7,7 @@ use App\Models\ContactList;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Facades\Log;
 
 class ContactController extends Controller
 {
@@ -84,48 +85,12 @@ class ContactController extends Controller
         ]);
 
         foreach ($request->contacts as $contactData) {
-            $list->contacts()->create($contactData);
+            $list->contacts()->create(array_merge($contactData, [
+                'user_id' => auth()->id(),
+            ]));
         }
 
         return redirect()->back();
     }
 
-    public function export(ContactList $list, string $format)
-    {
-        $contacts = $list->contacts()->get();
-        $filename = 'contacts_' . $list->name . '.' . $format;
-
-        if ($format === 'csv') {
-            $headers = [
-                'Content-Type' => 'text/csv',
-                'Content-Disposition' => 'attachment; filename="' . $filename . '"'
-            ];
-
-            $handle = fopen('php://temp', 'r+');
-            fputcsv($handle, ['Prénom', 'Nom', 'Email', 'Téléphone']);
-
-            foreach ($contacts as $contact) {
-                fputcsv($handle, [
-                    $contact->first_name,
-                    $contact->last_name,
-                    $contact->email,
-                    $contact->phone
-                ]);
-            }
-
-            rewind($handle);
-            $content = stream_get_contents($handle);
-            fclose($handle);
-
-            return response($content, 200, $headers);
-        }
-
-        if ($format === 'pdf') {
-            $pdf = app()->make('dompdf.wrapper');
-            $pdf->loadView('exports.contacts', ['contacts' => $contacts]);
-            return $pdf->download($filename);
-        }
-
-        abort(400, 'Format non supporté');
-    }
 }

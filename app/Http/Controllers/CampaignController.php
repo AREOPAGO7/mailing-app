@@ -36,8 +36,8 @@ class CampaignController extends Controller
             'name' => 'required|string|max:255',
             'template_id' => 'required|exists:templates,id',
             'list_id' => 'required|exists:contact_lists,id', // This validation is correct
-            'subject' => 'required|string|max:255',
-            'body' => 'required|string',
+            'subject' => 'nullable|string|max:255', // Optional
+            'body' => 'nullable|string',           // Optional
             'start_date' => 'required|date|after_or_equal:today',
             'days_active' => 'required|array',
             'days_active.*' => 'required|string|in:Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday',
@@ -90,8 +90,8 @@ class CampaignController extends Controller
             'name' => 'required|string|max:255',
             'template_id' => 'required|exists:templates,id',
             'list_id' => 'required|exists:contact_lists,id',
-            'subject' => 'required|string|max:255',
-            'body' => 'required|string',
+            'subject' => 'nullable|string|max:255', // Optional
+            'body' => 'nullable|string',           // Optional
             'start_date' => 'required|date|after_or_equal:today',
             'days_active' => 'required|array',
             'days_active.*' => 'required|string|in:Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday',

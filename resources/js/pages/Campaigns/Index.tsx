@@ -63,15 +63,15 @@ export default function CampaignIndex({ campaigns, templates, lists }: Props) {
 
   const handleCreate = () => {
     // Validate required fields
-    if (!formData.name || !formData.subject || !formData.body) {
+    if (!formData.name) {
       alert('Please fill in all required fields');
       return;
     }
 
     router.post('/campaigns', {
       name: formData.name,
-      subject: formData.subject,
-      body: formData.body,
+      subject: formData.subject, // Optional
+      body: formData.body,       // Optional
       start_date: formData.start_date,
       time_start: formData.time_start,
       time_end: formData.time_end,
@@ -111,7 +111,6 @@ export default function CampaignIndex({ campaigns, templates, lists }: Props) {
         return;
       }
 
-      alert(`Updating campaign: ${editingCampaign.name}`); // Alert to confirm button click
       router.put(`/campaigns/${editingCampaign.id}`, { ...editingCampaign, time_end: timeEnd }, {
         onSuccess: () => {
           alert('Campaign updated successfully!'); // Alert on successful update
@@ -142,7 +141,7 @@ export default function CampaignIndex({ campaigns, templates, lists }: Props) {
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
             <DialogTrigger asChild>
               <Button>
-                <Plus className="w-4 h-4 mr-2" />
+                <Plus className="w-4 h-4 mr-2 " />
                 Create Campaign
               </Button>
             </DialogTrigger>
