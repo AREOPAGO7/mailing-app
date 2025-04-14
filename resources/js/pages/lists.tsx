@@ -131,14 +131,14 @@ export default function Dashboard({ lists }: Props) {
                                         <div className="space-y-2 mb-4">
                                             <p className="font-medium">{list.name}</p>
                                             <p className="text-sm text-gray-500 flex items-center">
-                                                <Users className="w-4 h-4 mr-1" />
+                                                <Users className="w-4 h-4 mr-1 text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-500 transition-colors duration-200" />
                                                 {list.contacts_count} contacts
                                             </p>
                                         </div>
                                         <div className="flex gap-2">
                                             <Link href={`/lists/${list.id}/contacts`}>
                                                 <Button variant="outline" size="icon">
-                                                    <Users className="w-4 h-4" />
+                                                    <Users className="w-4 h-4 text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-500 transition-colors duration-200" />
                                                 </Button>
                                             </Link>
                                             <Button
@@ -146,14 +146,14 @@ export default function Dashboard({ lists }: Props) {
                                                 size="icon"
                                                 onClick={() => setEditingList(list)}
                                             >
-                                                <Pencil className="w-4 h-4" />
+                                                <Pencil className="w-4 h-4 text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-500 transition-colors duration-200" />
                                             </Button>
                                             <Button
                                                 variant="outline"
                                                 size="icon"
                                                 onClick={() => handleDelete(list.id)}
                                             >
-                                                <Trash2 className="w-4 h-4" />
+                                                <Trash2 className="w-4 h-4 text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-500 transition-colors duration-200" />
                                             </Button>
                                         </div>
                                     </>

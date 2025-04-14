@@ -38,7 +38,7 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                             <Button
                                 key={`${item.href}-${index}`}
                                 size="sm"
-                                variant="ghost"
+                                variant="default"
                                 asChild
                                 className={cn('w-full justify-start', {
                                     'bg-muted': currentPath === item.href,

@@ -432,19 +432,19 @@ export default function CampaignIndex({ campaigns, templates, lists }: Props) {
                   onClick={() =>
                     setEditingCampaign({
                       ...campaign,
-                      time_end: campaign.time_end || '00:00', // Default to '00:00' if time_end is null
-                      time_start: campaign.time_start || '00:00', // Default to '00:00' if time_start is null
+                      time_end: campaign.time_end || '00:00',
+                      time_start: campaign.time_start || '00:00',
                     })
                   }
                 >
-                  <Pencil className="w-4 h-4" />
+                  <Pencil className="w-4 h-4 text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-500 transition-colors duration-200" />
                 </Button>
                 <Button
                   variant="outline"
                   size="icon"
                   onClick={() => handleDelete(campaign.id)}
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-4 h-4 text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-500 transition-colors duration-200" />
                 </Button>
               </div>
             </CardContent>

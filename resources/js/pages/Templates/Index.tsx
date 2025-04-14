@@ -200,21 +200,21 @@ export default function TemplateIndex({ templates }: Props) {
                     size="icon"
                     onClick={() => setEditingTemplate(template)}
                   >
-                    <Pencil className="w-4 h-4" />
+                    <Pencil className="w-4 h-4 text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-500 transition-colors duration-200" />
                   </Button>
                   <Button
                     variant="outline"
                     size="icon"
                     onClick={() => setPreviewingTemplate(template)}
                   >
-                    <Eye className="w-4 h-4" />
+                    <Eye className="w-4 h-4 text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-500 transition-colors duration-200" />
                   </Button>
                   <Button
                     variant="outline"
                     size="icon"
                     onClick={() => handleDelete(template.id)}
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-4 h-4 text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-500 transition-colors duration-200" />
                   </Button>
                 </div>
               </CardContent>
