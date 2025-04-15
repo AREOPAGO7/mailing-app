@@ -4,6 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Carbon\Carbon;
 
 class Campaign extends Model
 {
@@ -27,6 +28,28 @@ class Campaign extends Model
         'days_active' => 'array',
         'start_date' => 'date',
     ];
+
+    // Add accessors for time fields
+    public function getTimeStartAttribute($value)
+    {
+        return Carbon::createFromFormat('H:i:s', $value)->format('H:i');
+    }
+
+    public function getTimeEndAttribute($value)
+    {
+        return Carbon::createFromFormat('H:i:s', $value)->format('H:i');
+    }
+
+    // Add mutators for time fields
+    public function setTimeStartAttribute($value)
+    {
+        $this->attributes['time_start'] = Carbon::createFromFormat('H:i', $value)->format('H:i:s');
+    }
+
+    public function setTimeEndAttribute($value)
+    {
+        $this->attributes['time_end'] = Carbon::createFromFormat('H:i', $value)->format('H:i:s');
+    }
 
     // Add validation rules as a static property
     public static $rules = [

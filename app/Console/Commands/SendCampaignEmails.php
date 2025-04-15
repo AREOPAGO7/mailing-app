@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Campaign;
 use App\Models\CampaignLog;
+use App\Models\CampaignContactLog;
 use App\Models\Contact;
 use App\Models\ContactList;
 use Illuminate\Console\Command;
@@ -145,6 +146,16 @@ class SendCampaignEmails extends Command
 
         foreach ($contacts as $contact) {
             try {
+                // Check if contact has already received an email from this campaign
+                $alreadySent = CampaignContactLog::where('campaign_id', $campaign->id)
+                    ->where('contact_id', $contact->id)
+                    ->exists();
+
+                if ($alreadySent) {
+                    $this->info("Skipping {$contact->email} - already received email from this campaign");
+                    continue;
+                }
+
                 $this->info("Sending to: {$contact->email}");
 
                 // Fetch the template content if a template is selected
@@ -159,6 +170,13 @@ class SendCampaignEmails extends Command
                         ->subject($campaign->subject)
                         ->html($templateContent); // Use the template content as the email body
                 });
+
+                // Log that this contact received the email
+                CampaignContactLog::create([
+                    'campaign_id' => $campaign->id,
+                    'contact_id' => $contact->id,
+                    'sent_at' => now()
+                ]);
 
                 $log->increment('successful_sends');
                 $this->info("Successfully sent to {$contact->email}");

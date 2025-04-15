@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class CampaignController extends Controller
 {
@@ -29,15 +30,14 @@ class CampaignController extends Controller
         ]);
     }
 
-    // In your store method, add this verification before creating the campaign
     public function store(Request $request)
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'template_id' => 'required|exists:templates,id',
-            'list_id' => 'required|exists:contact_lists,id', // This validation is correct
-            'subject' => 'nullable|string|max:255', // Optional
-            'body' => 'nullable|string',           // Optional
+            'list_id' => 'required|exists:contact_lists,id',
+            'subject' => 'nullable|string|max:255',
+            'body' => 'nullable|string',
             'start_date' => 'required|date|after_or_equal:today',
             'days_active' => 'required|array',
             'days_active.*' => 'required|string|in:Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday',
@@ -45,18 +45,16 @@ class CampaignController extends Controller
             'time_end' => 'required|date_format:H:i|after:time_start',
         ]);
 
+        // Format times to include seconds
+        $data['time_start'] = Carbon::createFromFormat('H:i', $data['time_start'])->format('H:i:s');
+        $data['time_end'] = Carbon::createFromFormat('H:i', $data['time_end'])->format('H:i:s');
+
         // Verify template and list ownership
         $template = Template::findOrFail($data['template_id']);
         $list = ContactList::findOrFail($data['list_id']);
 
         if ($template->user_id !== Auth::id() || $list->user_id !== Auth::id()) {
             return redirect()->back()->with('error', 'Unauthorized access to template or list.');
-        }
-
-        // Add this verification
-        $list = ContactList::find($data['list_id']);
-        if (!$list || $list->user_id !== Auth::id()) {
-            return redirect()->back()->with('error', 'Selected contact list is invalid or not accessible.');
         }
 
         try {
@@ -90,14 +88,18 @@ class CampaignController extends Controller
             'name' => 'required|string|max:255',
             'template_id' => 'required|exists:templates,id',
             'list_id' => 'required|exists:contact_lists,id',
-            'subject' => 'nullable|string|max:255', // Optional
-            'body' => 'nullable|string',           // Optional
+            'subject' => 'nullable|string|max:255',
+            'body' => 'nullable|string',
             'start_date' => 'required|date|after_or_equal:today',
             'days_active' => 'required|array',
             'days_active.*' => 'required|string|in:Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday',
             'time_start' => 'required|date_format:H:i',
             'time_end' => 'required|date_format:H:i|after:time_start',
         ]);
+
+        // Format times to include seconds
+        $data['time_start'] = Carbon::createFromFormat('H:i', $data['time_start'])->format('H:i:s');
+        $data['time_end'] = Carbon::createFromFormat('H:i', $data['time_end'])->format('H:i:s');
 
         // Verify template and list ownership
         $template = Template::findOrFail($data['template_id']);
