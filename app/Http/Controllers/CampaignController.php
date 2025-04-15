@@ -8,21 +8,15 @@ use App\Models\ContactList;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;  // Add this import
 
 class CampaignController extends Controller
 {
     public function index(): Response
     {
-        $campaigns = Campaign::with(['template', 'contactList'])
-            ->where('user_id', Auth::id())
-            ->latest()
-            ->get();
-
-        $templates = Template::where('user_id', Auth::id())->get();
-        $lists = ContactList::where('user_id', Auth::id())->get();
-
+        $campaigns = Campaign::with(['template', 'contactList'])->get();
+        $templates = Template::all();
+        $lists = ContactList::all();
         return Inertia::render('Campaigns/Index', [
             'campaigns' => $campaigns,
             'templates' => $templates,
@@ -36,29 +30,18 @@ class CampaignController extends Controller
             'name' => 'required|string|max:255',
             'template_id' => 'required|exists:templates,id',
             'list_id' => 'required|exists:contact_lists,id',
-            'subject' => 'nullable|string|max:255',
-            'body' => 'nullable|string',
-            'start_date' => 'required|date|after_or_equal:today',
+            'subject' => 'required|string|max:255',
+            'body' => 'required|string',
+            'start_date' => 'required|date',
             'days_active' => 'required|array',
-            'days_active.*' => 'required|string|in:Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday',
+            'days_active.*' => 'string',
             'time_start' => 'required|date_format:H:i',
-            'time_end' => 'required|date_format:H:i|after:time_start',
+            'time_end' => 'required|date_format:H:i',
         ]);
 
-        // Format times to include seconds
-        $data['time_start'] = Carbon::createFromFormat('H:i', $data['time_start'])->format('H:i:s');
-        $data['time_end'] = Carbon::createFromFormat('H:i', $data['time_end'])->format('H:i:s');
-
-        // Verify template and list ownership
-        $template = Template::findOrFail($data['template_id']);
-        $list = ContactList::findOrFail($data['list_id']);
-
-        if ($template->user_id !== Auth::id() || $list->user_id !== Auth::id()) {
-            return redirect()->back()->with('error', 'Unauthorized access to template or list.');
-        }
-
-        try {
-            Campaign::create([
+      
+            // Debug the data
+            \Log::info('Creating campaign with data:', [
                 'name' => $data['name'],
                 'template_id' => $data['template_id'],
                 'list_id' => $data['list_id'],
@@ -68,67 +51,54 @@ class CampaignController extends Controller
                 'days_active' => $data['days_active'],
                 'time_start' => $data['time_start'],
                 'time_end' => $data['time_end'],
-                'user_id' => Auth::id(),
+                'user_id' => Auth::id(),  // Verify this is being included
             ]);
+        
+            $campaign = Campaign::create([
+                'name' => $data['name'],
+                'template_id' => $data['template_id'],
+                'list_id' => $data['list_id'],
+                'subject' => $data['subject'],
+                'body' => $data['body'],
+                'start_date' => $data['start_date'],
+                'days_active' => $data['days_active'],
+                'time_start' => $data['time_start'],
+                'time_end' => $data['time_end'],
+                'user_id' => Auth::id(),  // Make sure this line is present
+            ]);
+        
 
-            return redirect()->back()->with('success', 'Campaign created successfully!');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to create campaign. Please try again.');
-        }
+        return redirect()->back()->with('success', 'Campaign created successfully!');
     }
 
     public function update(Request $request, Campaign $campaign)
     {
-        // Check if the user owns this campaign
-        if ($campaign->user_id !== Auth::id()) {
-            return redirect()->back()->with('error', 'Unauthorized access.');
-        }
-
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'template_id' => 'required|exists:templates,id',
             'list_id' => 'required|exists:contact_lists,id',
-            'subject' => 'nullable|string|max:255',
-            'body' => 'nullable|string',
-            'start_date' => 'required|date|after_or_equal:today',
+            'subject' => 'required|string|max:255',
+            'body' => 'required|string',
+            'start_date' => 'required|date',
             'days_active' => 'required|array',
-            'days_active.*' => 'required|string|in:Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday',
+            'days_active.*' => 'string',
             'time_start' => 'required|date_format:H:i',
-            'time_end' => 'required|date_format:H:i|after:time_start',
+            'time_end' => 'required|date_format:H:i',
         ]);
 
-        // Format times to include seconds
-        $data['time_start'] = Carbon::createFromFormat('H:i', $data['time_start'])->format('H:i:s');
-        $data['time_end'] = Carbon::createFromFormat('H:i', $data['time_end'])->format('H:i:s');
+        // Update the campaign attributes
+        $campaign->fill($data);
 
-        // Verify template and list ownership
-        $template = Template::findOrFail($data['template_id']);
-        $list = ContactList::findOrFail($data['list_id']);
+        // Save the updated campaign
+        $campaign->save();
 
-        if ($template->user_id !== Auth::id() || $list->user_id !== Auth::id()) {
-            return redirect()->back()->with('error', 'Unauthorized access to template or list.');
-        }
-
-        try {
-            $campaign->update($data);
-            return redirect()->back()->with('success', 'Campaign updated successfully!');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to update campaign. Please try again.');
-        }
+        return redirect()->back()->with('success', 'Campaign updated successfully!');
     }
 
     public function destroy(Campaign $campaign)
     {
-        // Check if the user owns this campaign
-        if ($campaign->user_id !== Auth::id()) {
-            return redirect()->back()->with('error', 'Unauthorized access.');
-        }
+        $campaign->delete();
 
-        try {
-            $campaign->delete();
-            return redirect()->back()->with('success', 'Campaign deleted successfully!');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to delete campaign. Please try again.');
-        }
+        return redirect()->back()->with('success', 'Campaign deleted successfully!');
     }
 }
